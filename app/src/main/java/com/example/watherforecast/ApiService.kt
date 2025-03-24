@@ -11,6 +11,5 @@ interface ApiService {
         @Query("current") current: String = "temperature_2m,relative_humidity_2m,wind_speed_10m",
         @Query("daily") daily: String = "temperature_2m_max,temperature_2m_min,precipitation_probability_max",
         @Query("timezone") timezone: String = "auto"
-    ): WeatherResponse
-
+    ): WeatherForecastDto
 }
