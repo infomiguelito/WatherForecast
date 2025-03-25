@@ -93,7 +93,8 @@ class MainActivity : ComponentActivity() {
                 WeatherScreen(
                     weatherData = weatherData.value,
                     isLoading = isLoading.value,
-                    error = error.value
+                    error = error.value,
+                    onRetry = { lifecycleScope.launch { fetchWeatherData() } }
                 )
             }
         }
