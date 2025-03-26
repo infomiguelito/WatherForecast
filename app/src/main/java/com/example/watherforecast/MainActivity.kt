@@ -2,100 +2,78 @@ package com.example.watherforecast
 
 import android.Manifest
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.launch
+import androidx.activity.viewModels
+import androidx.compose.runtime.*
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import com.example.watherforecast.ui.theme.WeatherForecastTheme
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
-    private lateinit var locationHelper: LocationHelper
-    private lateinit var apiService: ApiService
-
-    // Estados
-    private val weatherData = mutableStateOf<WeatherResponse?>(null)
-    private val isLoading = mutableStateOf(true)
-    private val error = mutableStateOf<String?>(null)
-
+    private val viewModel: MainViewModel by viewModels()
     private val locationPermissionRequest = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
         when {
             permissions.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false) ||
             permissions.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false) -> {
-                // Permissão concedida, buscar dados
-                lifecycleScope.launch {
-                    fetchWeatherData()
-                }
+                viewModel.fetchWeatherData()
             }
             else -> {
-                error.value = "Precisamos da permissão de localização para mostrar o clima local"
-                isLoading.value = false
+                viewModel.setError("Permissão de localização é necessária para mostrar o clima da sua região.")
             }
         }
-    }
-
-    private suspend fun fetchWeatherData() {
-        if (!locationHelper.isLocationEnabled()) {
-            error.value = "Por favor, ative a localização do dispositivo"
-            isLoading.value = false
-            return
-        }
-
-        isLoading.value = true
-        error.value = null
-
-        try {
-            val location = locationHelper.getCurrentLocation()
-            if (location != null) {
-                val response = apiService.getWeatherForecast(
-                    latitude = location.latitude,
-                    longitude = location.longitude
-                )
-                weatherData.value = response.toWeatherResponse()
-            } else {
-                error.value = "Não foi possível obter sua localização"
-            }
-        } catch (e: Exception) {
-            error.value = "Erro ao buscar dados do clima: ${e.message}"
-        }
-        isLoading.value = false
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        
-        locationHelper = LocationHelper(this)
-        apiService = RetrofitClient.createService(ApiService::class.java)
-
         setContent {
-            LaunchedEffect(Unit) {
-                if (locationHelper.hasLocationPermission()) {
-                    fetchWeatherData()
-                } else {
-                    locationPermissionRequest.launch(
-                        arrayOf(
-                            Manifest.permission.ACCESS_FINE_LOCATION,
-                            Manifest.permission.ACCESS_COARSE_LOCATION
-                        )
-                    )
-                }
-            }
-
             WeatherForecastTheme {
-                WeatherScreen(
-                    weatherData = weatherData.value,
-                    isLoading = isLoading.value,
-                    error = error.value,
-                    onRetry = { lifecycleScope.launch { fetchWeatherData() } }
-                )
+                val navController = rememberNavController()
+                val weatherData by viewModel.weatherData.collectAsState()
+                val isLoading by viewModel.isLoading.collectAsState()
+                val error by viewModel.error.collectAsState()
+
+                // Verificar permissões quando o app inicia
+                LaunchedEffect(Unit) {
+                    if (viewModel.hasLocationPermission()) {
+                        viewModel.fetchWeatherData()
+                    } else {
+                        locationPermissionRequest.launch(
+                            arrayOf(
+                                Manifest.permission.ACCESS_FINE_LOCATION,
+                                Manifest.permission.ACCESS_COARSE_LOCATION
+                            )
+                        )
+                    }
+                }
+
+                NavHost(navController = navController, startDestination = "weather_list") {
+                    composable("weather_list") {
+                        WeatherScreen(
+                            weatherData = weatherData,
+                            isLoading = isLoading,
+                            error = error,
+                            onRetry = { viewModel.fetchWeatherData() },
+                            onWeatherDayClick = { weatherData ->
+                                navController.navigate("weather_detail/${weatherData.date}")
+                            }
+                        )
+                    }
+                    composable("weather_detail/{date}") { backStackEntry ->
+                        val date = backStackEntry.arguments?.getString("date")
+                        weatherData?.result?.find { it.date == date }?.let { weatherData ->
+                            WeatherDetailScreen(
+                                weatherData = weatherData,
+                                onBackPressed = { navController.popBackStack() }
+                            )
+                        }
+                    }
+                }
             }
         }
     }

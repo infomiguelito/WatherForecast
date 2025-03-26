@@ -21,9 +21,9 @@ fun WeatherForecastDto.toWeatherResponse(): WeatherResponse {
         if (i > 0) { // Pula o primeiro dia que já foi adicionado com os dados atuais
             weatherDataList.add(
                 WeatherData(
-                    temperature = 0.0, // Não temos temperatura atual para dias futuros
-                    humidity = 0, // Não temos umidade para dias futuros
-                    windSpeed = 0.0, // Não temos velocidade do vento para dias futuros
+                    temperature = (daily.maxTemperature[i] + daily.minTemperature[i]) / 2, // Temperatura média do dia
+                    humidity = daily.maxHumidity[i],
+                    windSpeed = daily.maxWindSpeed[i],
                     date = daily.time[i],
                     maxTemperature = daily.maxTemperature[i],
                     minTemperature = daily.minTemperature[i],

@@ -9,7 +9,7 @@ interface ApiService {
         @Query("latitude") latitude: Double,
         @Query("longitude") longitude: Double,
         @Query("current") current: String = "temperature_2m,relative_humidity_2m,wind_speed_10m",
-        @Query("daily") daily: String = "temperature_2m_max,temperature_2m_min,precipitation_probability_max",
+        @Query("daily") daily: String = "temperature_2m_max,temperature_2m_min,precipitation_probability_max,relative_humidity_2m_max,wind_speed_10m_max",
         @Query("timezone") timezone: String = "auto"
     ): WeatherForecastDto
 }

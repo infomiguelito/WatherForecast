@@ -1,7 +1,9 @@
 package com.example.watherforecast
 
+import android.util.Log
 import androidx.compose.animation.core.*
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -24,7 +26,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 @Composable
-private fun AnimatedWeatherIcon(precipitationProbability: Int) {
+fun AnimatedWeatherIcon(precipitationProbability: Int) {
     val infiniteTransition = rememberInfiniteTransition(label = "weather")
     
     val sunRotation by infiniteTransition.animateFloat(
@@ -173,8 +175,13 @@ fun WeatherScreen(
     weatherData: WeatherResponse?,
     isLoading: Boolean,
     error: String?,
-    onRetry: () -> Unit
+    onRetry: () -> Unit,
+    onWeatherDayClick: (WeatherData) -> Unit
 ) {
+    Log.d("WeatherScreen", "Dados recebidos: $weatherData")
+    Log.d("WeatherScreen", "Loading: $isLoading")
+    Log.d("WeatherScreen", "Error: $error")
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -237,7 +244,7 @@ fun WeatherScreen(
                     }
 
                     items(weatherData.result.drop(1).take(5)) { day ->
-                        DailyForecastCard(day)
+                        DailyForecastCard(day, onWeatherDayClick)
                     }
                 }
             }
@@ -322,11 +329,12 @@ private fun CurrentWeatherCard(currentWeather: WeatherData?) {
 }
 
 @Composable
-private fun DailyForecastCard(weather: WeatherData) {
+private fun DailyForecastCard(weather: WeatherData, onWeatherDayClick: (WeatherData) -> Unit) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(vertical = 4.dp),
+            .padding(vertical = 4.dp)
+            .clickable { onWeatherDayClick(weather) },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color.White.copy(alpha = 0.15f)

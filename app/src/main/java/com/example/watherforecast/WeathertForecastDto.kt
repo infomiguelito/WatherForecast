@@ -70,7 +70,13 @@ data class DailyUnits(
     val minTemperature: String,
     
     @SerializedName("precipitation_probability_max")
-    val precipitationProbability: String
+    val precipitationProbability: String,
+    
+    @SerializedName("relative_humidity_2m_max")
+    val maxHumidity: String,
+    
+    @SerializedName("wind_speed_10m_max")
+    val maxWindSpeed: String
 )
 
 data class DailyWeather(
@@ -84,5 +90,11 @@ data class DailyWeather(
     val minTemperature: List<Double>,
     
     @SerializedName("precipitation_probability_max")
-    val precipitationProbability: List<Int>
+    val precipitationProbability: List<Int>,
+    
+    @SerializedName("relative_humidity_2m_max")
+    val maxHumidity: List<Int>,
+    
+    @SerializedName("wind_speed_10m_max")
+    val maxWindSpeed: List<Double>
 )
