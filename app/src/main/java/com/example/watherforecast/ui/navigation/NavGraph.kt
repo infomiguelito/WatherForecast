@@ -32,7 +32,7 @@ fun NavGraph(
             val date = backStackEntry.arguments?.getString("date")
             weatherData?.find { it.date == date }?.let { weather ->
                 WeatherDetailScreen(
-                    weatherData = weather,
+                    weather = weather,
                     onBackPressed = { navController.popBackStack() }
                 )
             }

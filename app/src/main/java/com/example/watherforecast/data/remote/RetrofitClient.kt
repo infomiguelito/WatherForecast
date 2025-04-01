@@ -8,7 +8,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
 
 object RetrofitClient {
-    private const val BASE_URL = "https://api.open-meteo.com/"
+    private const val BASE_URL = "https://api.weatherapi.com/"
 
     fun createService(): ApiService {
         val loggingInterceptor = HttpLoggingInterceptor().apply {
