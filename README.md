@@ -2,15 +2,6 @@
 
 Um aplicativo moderno de previsão do tempo desenvolvido com as mais recentes tecnologias Android.
 
-## 📱 Screenshots
-
-<div align="center">
-  <div style="display: flex; align-items: flex-start;">
-    <img src="[Captura de tela 2025-04-15 212851-32c55775-1614-4e1b-875a-dfc60c776087](https://github.com/user-attachments/assets/febf3d17-bc83-4e32-9fe8-dd014105de2e)"/>
-    <img src="screenshots/forecast_screen.png" width="250" alt="Tela de Previsão"/>
-  </div>
-</div>
-
 ## ✨ Funcionalidades!
 
 
